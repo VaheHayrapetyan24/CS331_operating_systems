@@ -18,6 +18,9 @@ int main() {
             strcat(b, a[i]);
             execl(b, a[i], NULL);
             perror("execl");
+        } else if (res < 0) {
+            printf("Forking failed\n");
+            return 1;
         }
     }
 
