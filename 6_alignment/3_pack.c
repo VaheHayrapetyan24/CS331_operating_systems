@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-#pragma pack
 struct {
 	char a;
 	int b;

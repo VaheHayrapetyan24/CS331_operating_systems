@@ -71,11 +71,6 @@ void quicksort(process_t* arr, const unsigned int s, bool (*compare)(process_t*,
 	free(q);
 }
 
-/*
-bool compare(process_t* a, process_t* b) {
-	return a->arrival_time > b->arrival_time;
-}
-*/
 
 void calculate(process_t* arr, int s, float* avg_wait, float* avg_turn) {
 	int curr_time = 0;
@@ -98,8 +93,16 @@ void calculate(process_t* arr, int s, float* avg_wait, float* avg_turn) {
 void print_processes(process_t* arr, int s, float* avg_wait, float* avg_turn) {
 	
 	printf("Gantt Chart:\n");
+	printf("Time  :");
+	for (int i = 0; i < 50; ++i) printf("%d", i % 10);
+	printf("\n");
 	for (int i = 0; i < s; ++i) {
-		printf("P%*d:%*s|%*s|\n", 5, arr[i].pid, arr[i].waiting_time + arr[i].arrival_time + i, "", arr[i].burst_time, "");
+		if (arr[i].waiting_time == 0) {
+			printf("P%*d:%*s|%*s|\n", 5, arr[i].pid,  arr[i].arrival_time , "", arr[i].burst_time - 1, "");
+		} else {
+
+			printf("P%*d:%*s[%*s|%*s|\n", 5, arr[i].pid, arr[i].arrival_time, "",  arr[i].waiting_time - 1, "", arr[i].burst_time - 1, "");
+		}
 	
 	}	
 
@@ -107,6 +110,10 @@ void print_processes(process_t* arr, int s, float* avg_wait, float* avg_turn) {
 	for (int i = 0; i < s; ++i) {
 		printf("%*d%*d%*d%*d%*d%*d\n", 5, arr[i].pid, 5, arr[i].arrival_time, 5, arr[i].burst_time, 5, arr[i].waiting_time, 5, arr[i].turnaround_time, 5, arr[i].response_time); 
 	}
+
+	printf("\n\nAVG WAIT: %f\n", *avg_wait);
+	printf("AVG TURN: %f\n", *avg_turn);
+	printf("AVG RESPONSE: %f\n", *avg_wait);
 
 }
 
@@ -119,7 +126,7 @@ int run(void(*sort)(process_t*, int)) {
 	}
 	printf("\n");
 
-	float avg_wait, avg_turn;
+	float avg_wait = 0, avg_turn = 0;
 	calculate(arr, 10, &avg_wait, &avg_turn);
 	print_processes(arr, 10, &avg_wait, &avg_turn);
 

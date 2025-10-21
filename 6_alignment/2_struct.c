@@ -17,5 +17,7 @@ int main() {
 	struct_a a;
 	struct_b b;
 
+
+	printf("a.a: %p, a.b: %p, a.c: %p\n", &a.a, &a.b, &a.c);
 	printf("a: %lu %p, b: %lu %p\n", sizeof(a), &a, sizeof(b), &b);
 }
