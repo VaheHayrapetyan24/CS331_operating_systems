@@ -12,7 +12,6 @@ extern int errno;
 int try_close(int fd) {
 	if (close(fd) == -1) {
 		perror("failed to close");
-		return 1;
 	}
 }
 
