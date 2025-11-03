@@ -13,7 +13,6 @@ extern int errno;
 int try_close(int fd) {
 	if (close(fd) == -1) {
 		perror("failed to close");
-		return 1;
 	}
 }
 
@@ -36,6 +35,17 @@ int write_with_retry(int fd, void* buf, size_t size) {
 
 int read_with_retry(int fd, void* buf, size_t size) {
 	return with_retry(read, fd, buf, size);
+}
+
+int lseek_with_retry(int fd, off_t offset, int whence) {
+	int ret;
+	do {
+		ret = lseek(fd, offset, whence);
+		if (ret == -1 && errno != EINTR) {
+                        return -1;
+                }
+        } while(ret == -1);
+        return ret;
 }
 
 int main() {
@@ -70,7 +80,7 @@ int main() {
 		return 1;
 	}
 
-	int sk = lseek(fd, 0, SEEK_END);
+	int sk = lseek_with_retry(fd, 0, SEEK_END);
 	if (sk == -1) {
 		perror("failed to seek");
 		try_close(fd);

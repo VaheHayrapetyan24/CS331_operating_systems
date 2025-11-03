@@ -12,7 +12,6 @@ extern int errno;
 int try_close(int fd) {
 	if (close(fd) == -1) {
 		perror("failed to close");
-		return 1;
 	}
 }
 
@@ -63,7 +62,7 @@ int main() {
 	int ret = write_with_retry(fd, "START", 5);
 	if (ret == -1) {
 		perror("failed to write");
-		try_close(ret);
+		try_close(fd);
 		return 1;
 	}
 
@@ -71,14 +70,14 @@ int main() {
 	ret = lseek_with_retry(fd, 1024 * 1024, SEEK_CUR);
 	if (ret == -1) {
 		perror("failed to lseek");
-		try_close(ret);
+		try_close(fd);
 		return 1;
 	}
 
 	ret = write_with_retry(fd, "END", 3);
 	if (ret == -1) {
                 perror("failed to write");
-                try_close(ret);
+                try_close(fd);
                 return 1;
         }
 
@@ -95,7 +94,7 @@ int main() {
 	ret = lseek_with_retry(fd, 0, SEEK_END);
 	if (ret == -1) {
                 perror("failed to lseek");
-                try_close(ret);
+                try_close(fd);
                 return 1;
         }
 

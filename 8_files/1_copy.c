@@ -13,8 +13,28 @@ extern int errno;
 int try_close(int fd) {
 	if (close(fd) == -1) {
 		perror("failed to close");
-		return 1;
 	}
+}
+
+// There's a warning here for size incompatibility for write, the buffer should be const
+// but I still don't want to duplciate this, so I'm leaving it
+int with_retry(ssize_t (*fn)(int, void*, size_t), int fd, void* buf, size_t size) {
+	int ret;
+        do {
+                ret = fn(fd, buf, size);
+                if (ret == -1 && errno != EINTR) {
+                        return -1;
+                }
+        } while(ret == -1);
+	return ret;
+}
+
+int write_with_retry(int fd, void* buf, size_t size) {
+	return with_retry(write, fd, buf, size);
+}
+
+int read_with_retry(int fd, void* buf, size_t size) {
+	return with_retry(read, fd, buf, size);
 }
 
 int main() {
@@ -46,23 +66,17 @@ int main() {
 	ssize_t r_ret, w_ret;
 	char buf[WORD_SIZE];
 	do {
-		r_ret = read(src_fd, buf, WORD_SIZE);
+		r_ret = read_with_retry(src_fd, buf, WORD_SIZE);
 		if (r_ret == -1) {
-			if (errno == EINTR) {
-				continue;
-			}
 			perror("read");
 			try_close(src_fd);
 			try_close(dest_fd);
 			return 1;
 		}
 
-		w_ret = write(dest_fd, buf, r_ret);
+		w_ret = write_with_retry(dest_fd, buf, r_ret);
 		if (w_ret == -1) {
-                        if (errno == EINTR) {
-                                continue;
-                        }
-                        perror("read");
+                        perror("write");
                         try_close(src_fd);
                         try_close(dest_fd);
                         return 1;
